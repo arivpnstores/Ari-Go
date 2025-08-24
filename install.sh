@@ -45,13 +45,16 @@ start_ari-go() {
     read -p "Masukkan Chat ID Telegram: " CHAT_ID
 
     echo "=== Menjalankan Ari-go (Tekan CTRL+C untuk stop) ==="
-    cd Ari-go
+    cd /root/Ari-go
     /usr/local/go/bin/go run main.go &
 
     echo "⏳ Menunggu /root/Ari-go/qrcode.png dibuat atau diupdate..."
     while inotifywait -e create -e modify /root/Ari-go/qrcode.png; do
+        # Copy ke /root biar aman
+        cp -f /root/Ari-go/qrcode.png /root/qrcode.png
+
         echo "📤 Mengirim QR Code ke Telegram..."
-        curl -s -F photo=@/root/Ari-go/qrcode.png \
+        curl -s -F photo=@/root/qrcode.png \
         "https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?chat_id=${CHAT_ID}&caption=Scan QR Code"
 
         if [ $? -eq 0 ]; then
